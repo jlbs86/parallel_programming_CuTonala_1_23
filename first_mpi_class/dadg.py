@@ -6,7 +6,8 @@ import numpy as np
 
 
 class MIPDanielDiaz:
-    def test0():
+    def p2p_comm():
+        """Point-to-Point Communication"""
 
         comm = MPI.COMM_WORLD
         rank = comm.Get_rank()
@@ -17,7 +18,8 @@ class MIPDanielDiaz:
         elif rank == 1:
             data = comm.recv(source=0, tag=11)
 
-    def test1():
+    def p2p_comm_non_block():
+        """Point-to-Point Communication non blocking"""
 
         comm = MPI.COMM_WORLD
         rank = comm.Get_rank()
@@ -30,7 +32,8 @@ class MIPDanielDiaz:
             req = comm.irecv(source=0, tag=11)
             data = req.wait()
 
-    def test2():
+    def p2p_numpy():
+        """Point-to-Point Communication using numpy"""
 
         comm = MPI.COMM_WORLD
         rank = comm.Get_rank()
@@ -50,8 +53,9 @@ class MIPDanielDiaz:
         elif rank == 1:
             data = np.empty(100, dtype=np.float64)
             comm.Recv(data, source=0, tag=13)
-
-    def test3():
+    
+    def broad_dic():
+        """Collective Communication - Broadcasting a Python dictionary"""
 
         comm = MPI.COMM_WORLD
         rank = comm.Get_rank()
@@ -62,7 +66,8 @@ class MIPDanielDiaz:
             data = None
         data = comm.bcast(data, root=0)
 
-    def test4():
+    def scatt_obj():
+        """Collective Communication - Scattering Python objects"""
 
         comm = MPI.COMM_WORLD
         size = comm.Get_size()
@@ -75,7 +80,8 @@ class MIPDanielDiaz:
         data = comm.scatter(data, root=0)
         assert data == (rank + 1) ** 2
 
-    def test5():
+    def gather_obj():
+        """Collective Communication - Gathering Python objects"""
 
         comm = MPI.COMM_WORLD
         size = comm.Get_size()
@@ -89,7 +95,8 @@ class MIPDanielDiaz:
         else:
             assert data is None
 
-    def test6():
+    def broad_numpy_arr():
+        """Collective Communication - Broadcasting a NumPy array"""
 
         comm = MPI.COMM_WORLD
         rank = comm.Get_rank()
@@ -102,7 +109,8 @@ class MIPDanielDiaz:
         for i in range(100):
             assert data[i] == i
 
-    def test7():
+    def scatt_numpy_arr():
+        """Collective Communication - Scattering a NumPy array"""
 
         comm = MPI.COMM_WORLD
         size = comm.Get_size()
@@ -116,7 +124,8 @@ class MIPDanielDiaz:
         comm.Scatter(sendbuf, recvbuf, root=0)
         assert np.allclose(recvbuf, rank)
 
-    def test8():
+    def gather_numpy_arr():
+        """Collective Communication - gathering a NumPy array"""
 
         comm = MPI.COMM_WORLD
         size = comm.Get_size()
@@ -131,7 +140,8 @@ class MIPDanielDiaz:
             for i in range(size):
                 assert np.allclose(recvbuf[i, :], i)
 
-    def test9(comm, A, x):
+    def matrix_per_vector(comm, A, x):
+        """Collective Communication - Parallel matrix-vector product"""
         m = A.shape[0]  # local rows
         p = comm.Get_size()
         xg = np.zeros(m * p, dtype="d")
@@ -139,7 +149,9 @@ class MIPDanielDiaz:
         y = np.dot(A, xg)
         return y
 
-    def test10():
+
+    def io_numpy_arr():
+        """MPI-IO - Collective I/O with NumPy arrays"""
 
         amode = MPI.MODE_WRONLY | MPI.MODE_CREATE
         comm = MPI.COMM_WORLD
@@ -153,7 +165,8 @@ class MIPDanielDiaz:
 
         fh.Close()
 
-    def test11():
+    def io_numpy_arr_non_con():
+        """MPI-IO - Non-contiguous Collective I/O with NumPy arrays and datatypes"""
 
         comm = MPI.COMM_WORLD
         rank = comm.Get_rank()
@@ -177,7 +190,8 @@ class MIPDanielDiaz:
         filetype.Free()
         fh.Close()
 
-    def test12():
+    def compute_pi_master():
+        """MPI-IO - Compute Pi - Master (or parent, or client) side"""
 
         comm = MPI.COMM_SELF.Spawn(sys.executable, args=["cpi.py"], maxprocs=5)
 
@@ -189,7 +203,8 @@ class MIPDanielDiaz:
 
         comm.Disconnect()
 
-    def test13():
+    def compute_pi_masterworker():
+        """MPI-IO - Compute Pi - Worker (or child, or server) side"""
 
         comm = MPI.Comm.Get_parent()
         size = comm.Get_size()
@@ -206,3 +221,6 @@ class MIPDanielDiaz:
         comm.Reduce([PI, MPI.DOUBLE], None, op=MPI.SUM, root=0)
 
         comm.Disconnect()
+
+if __name__ == "__main__":
+    instance = MIPDanielDiaz()
