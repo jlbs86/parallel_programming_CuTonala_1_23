@@ -17,6 +17,8 @@ class MpiDanielDiazUtils:
         """
             this method will send data between execution threads
         """
+        assert type(data) == int or type(data) == float or type(data) == list or type(data) == str
+
         rank = self.get_rank()
 
         if rank == 0:
